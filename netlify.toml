@@ -8,3 +8,8 @@
 [build.environment]
   NODE_VERSION = "18"
   NEXT_USE_NETLIFY_EDGE = "true"
+cache = [
+  "node_modules",
+  ".next/cache"
+]
+[build]
