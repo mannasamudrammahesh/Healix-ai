@@ -1,5 +1,4 @@
-Copilot Chat
-Update of TypeScript configuration file
+
 {
   "compilerOptions": {
     "target": "es6",
