@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import Confetti from '@/components/Confetti';
 import styles from "@/styles/styles.module.css";
 import "@/styles/LoginFormComponent.css";
 
