@@ -1,15 +1,14 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  environment = { NODE_VERSION = "18", NEXT_USE_NETLIFY_EDGE = "true" }
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[build.environment]
-  NODE_VERSION = "18"
-  NEXT_USE_NETLIFY_EDGE = "true"
-cache = [
-  "node_modules",
-  ".next/cache"
-]
-[build]
+[build.cache]
+  paths = [
+    "node_modules",
+    ".next/cache"
+  ]
+
