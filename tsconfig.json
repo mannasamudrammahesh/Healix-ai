@@ -1,3 +1,5 @@
+Copilot Chat
+Update of TypeScript configuration file
 {
   "compilerOptions": {
     "target": "es6",
@@ -20,9 +22,8 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    },
-    "baseUrl": "./src" 
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "data/leaderboard.js"],
   "exclude": ["node_modules", ".next", "out"]
-}
+} 
