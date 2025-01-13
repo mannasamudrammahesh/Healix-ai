@@ -1,26 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
-import { parseMultipartFormData } from "next-multipart-formdata-parser";
+import formidable from 'formidable';
+import { Readable } from 'stream';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-
+async function requestToFormDataStream(req: NextRequest) {
+  const arrayBuffer = await req.arrayBuffer();
+  return Readable.from(Buffer.from(arrayBuffer));
+}
 
 export const POST = async (req: NextRequest) => {
   try {
-    // Parse incoming form data
-    const { files, fields } = await parseMultipartFormData(req);
-    const selectedFile = files?.selectedFile;
+    const form = formidable({
+      maxFileSize: 4 * 1024 * 1024, 
+    });
 
+    const formDataStream = await requestToFormDataStream(req);
+    
+    const [fields, files] = await new Promise((resolve, reject) => {
+      form.parse(formDataStream, (err, fields, files) => {
+        if (err) reject(err);
+        resolve([fields, files]);
+      });
+    });
+
+    const selectedFile = files.selectedFile?.[0];  // formidable v3+ returns arrays
     if (!selectedFile) {
       return NextResponse.json({ error: "No image uploaded." }, { status: 400 });
     }
 
-    const prompt = fields?.prompt || "Describe this image.";
+    const prompt = fields.prompt?.[0] || "Describe this image.";
 
-    // Generate image with Replicate
+    const fileBuffer = await new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      const readStream = Readable.from(selectedFile.filepath);
+      
+      readStream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      readStream.on('end', () => resolve(Buffer.concat(chunks)));
+      readStream.on('error', reject);
+    });
+
+   
+    const replicate = new Replicate({
+      auth: process.env.REPLICATE_API_TOKEN,
+    });
+
     const result = await replicate.run(
       "stability-ai/stable-diffusion",
-      { input: { prompt, image: selectedFile.buffer.toString("base64") } }
+      { 
+        input: { 
+          prompt, 
+          image: fileBuffer.toString("base64") 
+        } 
+      }
     );
 
     if (!result || !result[0]) {
@@ -29,6 +66,10 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ imageURl: result[0] });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || "An unexpected error occurred." }, { status: 500 });
+    console.error('Error processing request:', error);
+    return NextResponse.json(
+      { error: error.message || "An unexpected error occurred." }, 
+      { status: 500 }
+    );
   }
 };
