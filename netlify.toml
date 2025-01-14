@@ -7,11 +7,15 @@
   NODE_VERSION = "20" # Use the Node.js version compatible with your project
 
 [[plugins]]
+  package = "@netlify/plugin-nextjs" # Add the official Next.js plugin to optimize Next.js builds
+
+[[plugins]]
   package = "netlify-plugin-cache"
-    [plugins.inputs]
-      paths = [
-        "node_modules/.cache", # Cache Next.js build files
-        "node_modules" # Cache dependencies
-      ]
+  [plugins.inputs]
+    paths = [
+      "node_modules/.cache", # Cache Next.js build files
+      "node_modules"         # Cache dependencies
+    ]
+
 
 
