@@ -8,6 +8,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
 import { Label } from "@/components/ui/label";
 import Confetti from 'react-canvas-confetti'
+import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
