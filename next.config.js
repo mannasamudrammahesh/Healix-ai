@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: "https",
@@ -20,6 +21,10 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+  },
+  output: 'export', // Required for static export
+  experimental: {
+    appDir: true,
   },
 };
 
