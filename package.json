@@ -39,7 +39,7 @@
     "rive-react": "^4.6.2",
     "tailwind-merge": "^2.1.0",
     "tailwindcss-animate": "^1.0.7",
-    "formidable": "^2.0.0"  // Added formidable package
+    "formidable": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -54,5 +54,6 @@
     "netlify-plugin-cache": "^1.0.0"
   }
 }
+
 
 
