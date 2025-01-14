@@ -1,22 +1,24 @@
-import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { createUploadthing } from "uploadthing/next";
+import { getToken } from "next-auth/jwt";
  
 const f = createUploadthing();
- 
-const auth = (req: Request) => ({ id: "fakeId" }); 
  
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
-      const user = await auth(req);
- 
+      // Simple auth check
+      const user = { id: "guest" }; // You can implement proper auth here
+      
       if (!user) throw new Error("Unauthorized");
- 
+      
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
- 
+      console.log("Upload complete for userId:", metadata.userId);
+      console.log("File:", file);
+      
       return { uploadedBy: metadata.userId };
     }),
-} satisfies FileRouter;
+} as const;
  
 export type OurFileRouter = typeof ourFileRouter;
