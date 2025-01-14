@@ -1,15 +1,17 @@
 [build]
+  base = "/"
+  publish = "out" # Adjust this to your build output directory (e.g., "out" for Next.js)
   command = "npm run build"
-  publish = ".next"
-  environment = { NODE_VERSION = "18", NEXT_USE_NETLIFY_EDGE = "true" }
+
+[build.environment]
+  NODE_VERSION = "20" # Use the Node.js version compatible with your project
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[build.cache]
-  paths = [
-    "node_modules",
-    ".next/cache"
-  ]
+  package = "netlify-plugin-cache"
+    [plugins.inputs]
+      paths = [
+        "node_modules/.cache", # Cache Next.js build files
+        "node_modules" # Cache dependencies
+      ]
 
 
