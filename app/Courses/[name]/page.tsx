@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
@@ -7,7 +7,7 @@ import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
 import { Label } from "@/components/ui/label";
-import Confetti from '@/components/Confetti';
+import Confetti from 'react-canvas-confetti'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
