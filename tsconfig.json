@@ -15,7 +15,7 @@
     "incremental": true,
     "baseUrl": ".", // Ensure baseUrl is set for path aliases
     "paths": {
-      "@/*": ["Mentify/*"] // Updated path to point to "src" directory
+      "@/*": ["Mentify-1/*"] // Updated path to point to "src" directory
     },
     "plugins": [
       {
