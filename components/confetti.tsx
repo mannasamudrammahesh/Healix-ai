@@ -1,11 +1,16 @@
+"use client";
+
 import { useCallback, useEffect, useRef } from 'react';
 import ReactCanvasConfetti from 'react-canvas-confetti';
+
 export default function Confetti() {
   const refAnimationInstance = useRef(null);
-  const getInstance = useCallback(instance => {
+
+  const getInstance = useCallback((instance: any) => {
     refAnimationInstance.current = instance;
   }, []);
-  const makeShot = useCallback((particleRatio, opts) => {
+
+  const makeShot = useCallback((particleRatio: number, opts: any) => {
     refAnimationInstance.current &&
       refAnimationInstance.current({
         ...opts,
@@ -13,7 +18,7 @@ export default function Confetti() {
         particleCount: Math.floor(200 * particleRatio)
       });
   }, []);
-  useEffect(() => fire(), []);
+
   const fire = useCallback(() => {
     makeShot(0.25, {
       spread: 26,
@@ -38,6 +43,11 @@ export default function Confetti() {
       startVelocity: 45
     });
   }, [makeShot]);
+
+  useEffect(() => {
+    fire();
+  }, [fire]);
+
   return (
     <ReactCanvasConfetti
       refConfetti={getInstance}
@@ -47,7 +57,8 @@ export default function Confetti() {
         width: '100%',
         height: '100%',
         top: 0,
-        left: 0
+        left: 0,
+        zIndex: 1000
       }}
     />
   );
