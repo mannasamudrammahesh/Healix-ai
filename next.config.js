@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    domains: ['uploadthing.com', 'utfs.io'],
     unoptimized: true,
     remotePatterns: [
       {
@@ -19,17 +20,14 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-      },
+      }
     ],
   },
   typescript: {
-    ignoreBuildErrors: true, // Only use during deployment if you're sure about your types
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true, // Only use during deployment if you're sure about your code quality
-  },
-  experimental: {
-    appDir: true,
+    ignoreDuringBuilds: true,
   }
 };
 
