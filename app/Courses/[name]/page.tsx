@@ -1,29 +1,32 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
 import { Label } from "@/components/ui/label";
-import Confetti from "react-canvas-confetti";
+import Confetti from 'react-canvas-confetti'
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import styles from "@/styles/styles.module.css";
+import "@/styles/LoginFormComponent.css";
 
 export default function Page({ params }: { params: { name: string } }) {
   const name = params.name;
   const [score, setScore] = useState(0);
   const [count, setCount] = useState(0);
-  const [chosen, setChosen] = useState<string | null>(null);
-  const [content, setContent] = useState<any>();
-  const [question, setQuestion] = useState<any>();
+  const [chosen, setChosen] = useState(null);
+  const [content, setContent] = useState();
+  const [question, setQuestion] = useState();
   const [progress, setProgress] = useState(10);
   const [response, setResponse] = useState("");
   const [output, setOutput] = useState("The response will appear here...");
+  const inputRef = useRef(null);
 
-  // Fetch quiz content
   const fetchData = async () => {
     try {
       const markdown = await import(`@/data/${name}.d.ts`);
@@ -38,18 +41,17 @@ export default function Page({ params }: { params: { name: string } }) {
     fetchData();
   }, [name]);
 
-  // Handle form submission
   const onSubmit = async () => {
-    toast.success(`Creating a response based on your performance in ${name}...`);
+    toast.success(
+      `Based on the personality test, we are creating a response to diagnose ${name}`
+    );
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userPrompt: `hello I have obtained a score of ${
-            30 - score
-          }/30 in ${name} related issue. Based on my performance, I would like a cure for ${name}. The lesser the score, the better the precautions and cure the person should take.`,
+          userPrompt: `hello I have obtained a score of ${30 - score}/30 in ${name} related issue. Based on my performance, I would like a cure for ${name}. The lesser the score, the better the precautions and cure the person should take.`,
         }),
       });
 
@@ -71,7 +73,6 @@ export default function Page({ params }: { params: { name: string } }) {
     );
   }, [response]);
 
-  // Rive animation setup
   const STATE_MACHINE_NAME = "Login Machine";
 
   const { rive: riveInstance, RiveComponent } = useRive({
@@ -92,7 +93,6 @@ export default function Page({ params }: { params: { name: string } }) {
     "trigFail"
   );
 
-  // Handle the "Next" button logic
   const onNext = () => {
     if (!chosen) {
       toast.error("Please select an option");
@@ -102,11 +102,10 @@ export default function Page({ params }: { params: { name: string } }) {
     setProgress(progress + 10);
     setCount(count + 1);
 
-    const [optionText, scoreValue] = chosen.split("+");
-    const currentScore = parseInt(scoreValue);
+    const currentScore = parseInt(chosen.split("+")[1]);
     setScore(score + currentScore);
 
-    if (question?.correctOption === optionText) {
+    if (question?.correctOption === chosen.split("+")[0]) {
       trigSuccessInput?.fire();
     } else {
       trigFailInput?.fire();
@@ -114,10 +113,11 @@ export default function Page({ params }: { params: { name: string } }) {
 
     if (progress >= 100) {
       onSubmit();
-    } else {
-      setQuestion(content?.questions[count + 1]);
-      setChosen(null); // Reset chosen for the next question
+      return;
     }
+
+    setQuestion(content?.questions[count + 1]);
+    setChosen(null);
   };
 
   return (
@@ -132,9 +132,8 @@ export default function Page({ params }: { params: { name: string } }) {
               <h1 className="text-2xl font-bold">{question?.question}</h1>
             </div>
             <RadioGroup
-              value={chosen || ""}
-              onChange={(value) => setChosen(value)}
-              className="flex flex-col gap-4"
+              defaultValue="comfortable"
+              onValueChange={(value) => setChosen(value)}
             >
               {question?.options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
