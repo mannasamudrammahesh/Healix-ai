@@ -5,9 +5,9 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY); // Use the env
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 export async function POST(req: NextRequest) {
-  // Validate the secret key
   const secretKey = req.headers.get("Authorization")?.split(" ")[1];
-  if (secretKey !== process.env.UPLOADTHING_SECRET) {
+
+  if (secretKey !== process.env.NEXT_PUBLIC_UPLOADTHING_SECRET) {
     return NextResponse.json({ error: "No secret provided" }, { status: 401 });
   }
 
