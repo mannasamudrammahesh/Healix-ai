@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
@@ -170,5 +170,6 @@ export default function Page({ params }: { params: { name: string } }) {
     </div>
   );
 }
+
 
 
