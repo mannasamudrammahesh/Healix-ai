@@ -14,7 +14,7 @@ import { useRef } from "react";
 import { useRive, RiveState, useStateMachineInput, StateMachineInput, Layout, Fit, Alignment, RiveProps } from 'rive-react';
 import styles from '@/styles/styles.module.css'
 import "@/styles/LoginFormComponent.css";
-import Confetti from "../../../../../components/Confetti";
+import Confetti from "components/Confetti";
 
 import toast, {Toaster} from "react-hot-toast";
 
