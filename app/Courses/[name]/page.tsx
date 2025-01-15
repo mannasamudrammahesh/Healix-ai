@@ -1,22 +1,25 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
 import { Label } from "@/components/ui/label";
-import Confetti from 'react-canvas-confetti';
+import Confetti from "react-canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import styles from "@/styles/styles.module.css";
+import "@/styles/LoginFormComponent.css";
 
 export default function Page({ params }: { params: { name: string } }) {
   const name = params.name;
   const [score, setScore] = useState(0);
   const [count, setCount] = useState(0);
-  const [chosen, setChosen] = useState<string>("");
+  const [chosen, setChosen] = useState<string | null>(null);
   const [content, setContent] = useState<any>();
   const [question, setQuestion] = useState<any>();
   const [progress, setProgress] = useState(10);
@@ -38,9 +41,7 @@ export default function Page({ params }: { params: { name: string } }) {
   }, [name]);
 
   const onSubmit = async () => {
-    toast.success(
-      `Based on the personality test, we are creating a response to diagnose ${name}`
-    );
+    toast.success(`Creating a response based on your performance in ${name}...`);
 
     try {
       const response = await fetch("/api/chat", {
@@ -54,7 +55,9 @@ export default function Page({ params }: { params: { name: string } }) {
       });
 
       const data = await response.json();
+
       if (data.error) throw new Error(data.error);
+
       setResponse(data.text || "No response received, please try again.");
     } catch (error) {
       toast.error(error.message);
@@ -89,10 +92,6 @@ export default function Page({ params }: { params: { name: string } }) {
     "trigFail"
   );
 
-  const handleOptionChange = (value: string) => {
-    setChosen(value);
-  };
-
   const onNext = () => {
     if (!chosen) {
       toast.error("Please select an option");
@@ -102,11 +101,11 @@ export default function Page({ params }: { params: { name: string } }) {
     setProgress(progress + 10);
     setCount(count + 1);
 
-    const [, scoreValue] = chosen.split("+");
+    const [optionText, scoreValue] = chosen.split("+");
     const currentScore = parseInt(scoreValue);
     setScore(score + currentScore);
 
-    if (question?.correctOption === chosen.split("+")[0]) {
+    if (question?.correctOption === optionText) {
       trigSuccessInput?.fire();
     } else {
       trigFailInput?.fire();
@@ -114,11 +113,10 @@ export default function Page({ params }: { params: { name: string } }) {
 
     if (progress >= 100) {
       onSubmit();
-      return;
+    } else {
+      setQuestion(content?.questions[count + 1]);
+      setChosen(null); // Reset chosen for the next question
     }
-
-    setQuestion(content?.questions[count + 1]);
-    setChosen("");  // Reset chosen option for next question
   };
 
   return (
@@ -133,11 +131,10 @@ export default function Page({ params }: { params: { name: string } }) {
               <h1 className="text-2xl font-bold">{question?.question}</h1>
             </div>
             <RadioGroup
-              value={chosen}
-              onValueChange={handleOptionChange}
-              className="flex flex-col gap-2"
+              value={chosen || ""}
+              onChange={(value) => setChosen(value)}
             >
-              {question?.options?.map((option: string, index: number) => (
+              {question?.options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <RadioGroupItem value={option} id={`r${index}`} />
                   <Label htmlFor={`r${index}`}>{option.split("+")[0]}</Label>
@@ -160,7 +157,6 @@ export default function Page({ params }: { params: { name: string } }) {
               setScore(0);
               setCount(0);
               setQuestion(content?.questions[0]);
-              setChosen("");
             }}
           >
             Restart
@@ -174,4 +170,5 @@ export default function Page({ params }: { params: { name: string } }) {
     </div>
   );
 }
+
 
