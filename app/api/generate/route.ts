@@ -1,4 +1,3 @@
-// app/api/generate/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -10,12 +9,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, gender, userPrompt, selectedFile } = body;
 
-    // Remove the secret key check since we'll handle auth differently
     if (!selectedFile) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // Create a prompt based on the user's input and image
     const basePrompt = `Generate an anime avatar based on this person's image. Gender: ${gender}.`;
     const finalPrompt = userPrompt 
       ? `${basePrompt} Additional requirements: ${userPrompt}`
@@ -30,7 +27,7 @@ export async function POST(req: NextRequest) {
       ]);
 
       const response = await result.response;
-      const imageURl = response.text(); // Assuming the model returns an image URL
+      const imageURl = response.text();
 
       return NextResponse.json({ imageURl });
     } catch (error) {
