@@ -6,7 +6,7 @@ import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
 import { Label } from "@/components/ui/label";
-import Confetti from 'react-canvas-confetti'
+import Confetti from 'react-canvas-confetti';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
@@ -71,7 +71,7 @@ export default function Page({ params }: { params: { name: string } }) {
     if (!response) return;
     setOutput("");
     [...response].forEach((char, i) =>
-      setTimeout(() => setOutput((prev) => prev + char), i * 10)
+      setTimeout(() => setOutput((prev) => prev + char), i * 50)
     );
   }, [response]);
 
@@ -122,6 +122,16 @@ export default function Page({ params }: { params: { name: string } }) {
     setChosen(null);
   };
 
+  const getMedal = () => {
+    if (score >= 25) {
+      return "/gold-medal.png";
+    } else if (score >= 15) {
+      return "/silver-medal.png";
+    } else {
+      return "/bronze-medal.png";
+    }
+  };
+
   return (
     <div className="around">
       <Toaster />
@@ -154,6 +164,7 @@ export default function Page({ params }: { params: { name: string } }) {
           <h1 className="text-2xl mt-2 font-bold">
             You scored {score} out of 30
           </h1>
+          <Image src={getMedal()} width={100} height={100} alt="Medal" />
           <Button
             onClick={() => {
               setProgress(10);
