@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
@@ -12,8 +11,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import styles from "@/styles/styles.module.css";
-import "@/styles/LoginFormComponent.css";
 
 export default function Page({ params }: { params: { name: string } }) {
   const name = params.name;
@@ -26,6 +23,7 @@ export default function Page({ params }: { params: { name: string } }) {
   const [response, setResponse] = useState("");
   const [output, setOutput] = useState("The response will appear here...");
 
+  // Fetch quiz content
   const fetchData = async () => {
     try {
       const markdown = await import(`@/data/${name}.d.ts`);
@@ -40,6 +38,7 @@ export default function Page({ params }: { params: { name: string } }) {
     fetchData();
   }, [name]);
 
+  // Handle form submission
   const onSubmit = async () => {
     toast.success(`Creating a response based on your performance in ${name}...`);
 
@@ -72,6 +71,7 @@ export default function Page({ params }: { params: { name: string } }) {
     );
   }, [response]);
 
+  // Rive animation setup
   const STATE_MACHINE_NAME = "Login Machine";
 
   const { rive: riveInstance, RiveComponent } = useRive({
@@ -92,6 +92,7 @@ export default function Page({ params }: { params: { name: string } }) {
     "trigFail"
   );
 
+  // Handle the "Next" button logic
   const onNext = () => {
     if (!chosen) {
       toast.error("Please select an option");
@@ -133,6 +134,7 @@ export default function Page({ params }: { params: { name: string } }) {
             <RadioGroup
               value={chosen || ""}
               onChange={(value) => setChosen(value)}
+              className="flex flex-col gap-4"
             >
               {question?.options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
@@ -170,6 +172,7 @@ export default function Page({ params }: { params: { name: string } }) {
     </div>
   );
 }
+
 
 
 
