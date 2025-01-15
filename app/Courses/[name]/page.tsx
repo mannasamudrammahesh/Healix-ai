@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import Image from "next/image";
 import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
@@ -101,7 +100,7 @@ export default function Page({ params }: { params: { name: string } }) {
       return;
     }
 
-    setProgress(progress + 10);
+    setProgress(progress + 100 / content.questions.length);
     setCount(count + 1);
 
     const currentScore = parseInt(chosen.split("+")[1]);
@@ -113,7 +112,7 @@ export default function Page({ params }: { params: { name: string } }) {
       trigFailInput?.fire();
     }
 
-    if (progress >= 100) {
+    if (count + 1 >= content.questions.length) {
       onSubmit();
       return;
     }
