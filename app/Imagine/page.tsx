@@ -1,6 +1,5 @@
 "use client";
 
-import Head from "next/head";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import "@uploadthing/react/styles.css";
@@ -10,78 +9,84 @@ import toast, { Toaster } from "react-hot-toast";
 import { BeatLoader } from "react-spinners";
 import styles from "@/styles/swapImage.module.css";
 
+interface UploadResponse {
+  url: string;
+}
+
 export default function Home() {
-  const [email, setEmail] = useState<string>("");
-  const [gender, setGender] = useState<string>("");
-  const [userPrompt, setUserPrompt] = useState<string>("");
-  const [click, setClick] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<string>("");
-  const [imageURl, setImageURl] = useState<string>("");
-  const [emailSent, setEmailSent] = useState<boolean>(false);
-  const [receivedEmail, setReceivedEmail] = useState<boolean>(false);
+  const [email, setEmail] = useState("");
+  const [gender, setGender] = useState("");
+  const [userPrompt, setUserPrompt] = useState("");
+  const [click, setClick] = useState(false);
+  const [selectedFile, setSelectedFile] = useState("");
+  const [imageURl, setImageURl] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [receivedEmail, setReceivedEmail] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !gender) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (!selectedFile) {
+      toast.error("Please upload a picture");
+      return;
+    }
+
     setClick(true);
 
     try {
-      if (!selectedFile) {
-        setClick(false);
-        return toast.error("Please upload a picture");
-      }
-
-      const body = {
-        email,
-        gender,
-        userPrompt,
-        selectedFile,
-      };
-
-      const data = await fetch("/api/generate", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_UPLOADTHING_SECRET}`, 
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          email,
+          gender,
+          userPrompt,
+          selectedFile,
+        }),
       });
 
-      const response = await data.json();
-
-      if (response.error) {
-        setClick(false);
-        toast.error(response.error);
-        return;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setImageURl(response.imageURl);
-      setClick(false);
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setImageURl(data.imageURl);
     } catch (err) {
+      console.error("Generation error:", err);
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
       setClick(false);
-      toast.error("Something went wrong");
     }
   };
 
   const handleEmailReceive = () => {
-    if (!receivedEmail) {
-      toast.success("Email receive is enabled");
-    } else {
-      toast.error("Email receive is disabled");
-    }
-    setReceivedEmail(!receivedEmail);
+    setReceivedEmail(prev => {
+      const newState = !prev;
+      toast[newState ? "success" : "error"](
+        `Email receive is ${newState ? "enabled" : "disabled"}`
+      );
+      return newState;
+    });
   };
 
   useEffect(() => {
-    if (imageURl) {
-      setEmail("");
-      setGender("");
-      setUserPrompt("");
-      setSelectedFile("");
-    }
-
     const sendEmail = async () => {
+      if (!imageURl || !email || !receivedEmail) return;
+
       try {
-        const emailRes = await fetch("/api/send", {
+        const response = await fetch("/api/send", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -92,51 +97,63 @@ export default function Home() {
           }),
         });
 
-        const emailResponse = await emailRes.json();
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        if (emailResponse.error) {
-          return toast.error("Error sending email");
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
         }
 
         setEmailSent(true);
         toast.success("Email sent successfully!");
       } catch (err) {
+        console.error("Email error:", err);
         toast.error("Failed to send email");
       }
     };
 
-    if (imageURl && receivedEmail) {
-      sendEmail();
+    if (imageURl) {
+      setEmail("");
+      setGender("");
+      setUserPrompt("");
+      setSelectedFile("");
+      
+      if (receivedEmail) {
+        sendEmail();
+      }
     }
   }, [imageURl, email, receivedEmail]);
 
   return (
-    <div>
-      <Toaster />
+    <div className="min-h-screen">
+      <Toaster position="top-center" />
+      
       {!imageURl ? (
         <main className="flex min-h-screen w-full flex-col items-center justify-center px-4 md:p-8 relative">
           <div className={styles.toggleButton} onClick={handleEmailReceive}>
-            <div className={receivedEmail ? styles.receivedEmail : ""}></div>
+            <div className={`${receivedEmail ? styles.receivedEmail : ""}`}></div>
           </div>
-          <Head>
-            <title>Imagine Yourself</title>
-          </Head>
+          
           <header className="mb-8 flex w-full flex-col items-center justify-center">
             <h1 className="text-4xl font-bold">Imagine Yourself</h1>
             <p className="opacity-60">Upload a picture of yourself and generate your avatar</p>
           </header>
+
           <form onSubmit={handleSubmit} className="flex w-full flex-col md:w-[60%]">
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email" className="mb-2">Email Address</label>
             <input
               type="email"
               id="email"
               required
-              className="mb-3 border-[1px] px-4 py-2"
+              className="mb-3 border-[1px] px-4 py-2 rounded"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <label htmlFor="gender">Gender</label>
+            <label htmlFor="gender" className="mb-2">Gender</label>
             <select
               className="mb-4 rounded border-[1px] px-4 py-3"
               id="gender"
@@ -148,36 +165,40 @@ export default function Home() {
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-            
-            <UploadButton
-              endpoint="imageUploader"
-              onClientUploadComplete={(res) => {
-                if (res && res[0]) {
-                  setSelectedFile(res[0].url);
-                  toast.success("Image uploaded successfully!");
-                }
-              }}
-              onUploadError={(error: Error) => {
-                toast.error(`Upload failed: ${error.message}`);
-              }}
-            />
 
-            <label htmlFor="prompt" className="mt-4">
+            <div className="mb-4">
+              <UploadButton
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  if (res?.[0]?.url) {
+                    setSelectedFile(res[0].url);
+                    toast.success("Image uploaded successfully!");
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  console.error("Upload error:", error);
+                  toast.error(`Upload failed: ${error.message}`);
+                }}
+              />
+            </div>
+
+            <label htmlFor="prompt" className="mb-2">
               Add custom prompt for your avatar
               <span className="opacity-60"> (optional)</span>
             </label>
             <textarea
               rows={4}
-              className="w-full border-[1px] p-3"
+              className="w-full border-[1px] p-3 rounded mb-4"
               id="prompt"
               value={userPrompt}
               placeholder="Copy image prompts from https://lexica.art"
               onChange={(e) => setUserPrompt(e.target.value)}
             />
+
             <button
               type="submit"
-              className="mt-5 rounded bg-blue-500 px-6 py-4 text-lg text-white hover:bg-blue-700"
-              disabled={click}
+              className="mt-5 rounded bg-blue-500 px-6 py-4 text-lg text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={click || !email || !gender || !selectedFile}
             >
               {click ? (
                 <BeatLoader size={8} color="white" />
@@ -188,7 +209,7 @@ export default function Home() {
           </form>
         </main>
       ) : (
-        <div className="min-h-screen w-full flex flex-col items-center justify-center">
+        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4">
           {imageURl && (
             <Image
               src={imageURl}
@@ -196,18 +217,17 @@ export default function Home() {
               height={200}
               alt="Generated avatar"
               className="mb-10"
+              priority
             />
           )}
           <h2 className="font-bold text-3xl mb-2">Thank you! 🌟</h2>
           <p className="mb-4 text-center">
             {emailSent ? (
               "Your avatar has been sent to your email address"
+            ) : receivedEmail ? (
+              <BeatLoader size={8} color="black" />
             ) : (
-              receivedEmail ? (
-                <BeatLoader size={8} color="black" />
-              ) : (
-                "Your image has been generated"
-              )
+              "Your image has been generated"
             )}
           </p>
           <Link
