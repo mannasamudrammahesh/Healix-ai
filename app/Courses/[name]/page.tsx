@@ -6,7 +6,7 @@ import Markdown from "react-markdown";
 import toast, { Toaster } from "react-hot-toast";
 import { useRive, useStateMachineInput, Layout, Fit, Alignment } from "rive-react";
 import { Label } from "@/components/ui/label";
-import Confetti from 'react-canvas-confetti';
+import Confetti from 'react-canvas-confetti'
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
@@ -19,9 +19,9 @@ export default function Page({ params }: { params: { name: string } }) {
   const name = params.name;
   const [score, setScore] = useState(0);
   const [count, setCount] = useState(0);
-  const [chosen, setChosen] = useState<string | undefined>();
-  const [content, setContent] = useState<any>();
-  const [question, setQuestion] = useState<any>();
+  const [chosen, setChosen] = useState<string | null>(null);
+  const [content, setContent] = useState<any>(null);
+  const [question, setQuestion] = useState<any>(null);
   const [progress, setProgress] = useState(10);
   const [response, setResponse] = useState("");
   const [output, setOutput] = useState("The response will appear here...");
@@ -63,7 +63,7 @@ export default function Page({ params }: { params: { name: string } }) {
 
       setResponse(data.text || "No response received, please try again.");
     } catch (error) {
-      toast.error(error?.message || "An error occurred");
+      toast.error(error.message);
     }
   };
 
@@ -119,11 +119,7 @@ export default function Page({ params }: { params: { name: string } }) {
     }
 
     setQuestion(content?.questions[count + 1]);
-    setChosen(undefined); // Reset chosen option for next question
-  };
-
-  const handleOptionChange = (value: string) => {
-    setChosen(value);
+    setChosen(null);
   };
 
   return (
@@ -138,11 +134,10 @@ export default function Page({ params }: { params: { name: string } }) {
               <h1 className="text-2xl font-bold">{question?.question}</h1>
             </div>
             <RadioGroup
-              value={chosen}
-              onValueChange={handleOptionChange}
-              className="space-y-2"
+              defaultValue="comfortable"
+              onValueChange={(value) => setChosen(value)}
             >
-              {question?.options?.map((option: string, index: number) => (
+              {question?.options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <RadioGroupItem value={option} id={`r${index}`} />
                   <Label htmlFor={`r${index}`}>{option.split("+")[0]}</Label>
@@ -165,7 +160,6 @@ export default function Page({ params }: { params: { name: string } }) {
               setScore(0);
               setCount(0);
               setQuestion(content?.questions[0]);
-              setChosen(undefined);
             }}
           >
             Restart
