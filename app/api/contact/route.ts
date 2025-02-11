@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const data = await resend.emails.send({
       from: 'Healix <onboarding@resend.dev>',
       to: process.env.CONTACT_EMAIL || 'maheshh130506@gmail.com',
-      subject: 'Message from Mentify',
+      subject: 'Message from Healix',
       react: ContactEmailTemplate({ name, email, message }),
     });
 
