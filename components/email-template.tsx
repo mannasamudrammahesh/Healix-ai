@@ -34,7 +34,7 @@ export const ContactEmailTemplate: React.FC<Readonly<ContactEmailTemplateProps>>
   message
 }) => (
   <div>
-    <h1>You got a message from Mentify</h1>
+    <h1>You got a message from Healix</h1>
     <h2>Name: {name}</h2>
     <h2>Email: {email}</h2>
     <h2>Message: {message}</h2>
