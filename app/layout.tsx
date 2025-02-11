@@ -6,8 +6,8 @@ import './globals.css';
 const fallbackFonts = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 export const metadata: Metadata = {
-  title: 'MetaMind',
-  description: 'MetaMind is a platform for mental health awareness and support.',
+  title: 'Mentify',
+  description: 'Mentify is a platform for mental health awareness and support.',
   icons: {
     icon: '/favicon.png',
   }

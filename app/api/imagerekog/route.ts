@@ -1,72 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
-import formidable from 'formidable';
-import { Readable } from 'stream';
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs'; // Required for formidable
-export const bodyParser = false;
-
-async function requestToFormDataStream(req: NextRequest) {
-  const arrayBuffer = await req.arrayBuffer();
-  return Readable.from(Buffer.from(arrayBuffer));
-}
+export const dynamic = "force-dynamic"; // Forces dynamic route behavior
+export const runtime = "nodejs"; // Required for server-side processing
 
 export const POST = async (req: NextRequest) => {
   try {
-    const form = formidable({
-      maxFileSize: 4 * 1024 * 1024, // 4MB limit
-    });
+    // Check content type
+    if (!req.headers.get("content-type")?.includes("multipart/form-data")) {
+      return NextResponse.json({ error: "Invalid content type" }, { status: 400 });
+    }
 
-    const formDataStream = await requestToFormDataStream(req);
-    
-    const [fields, files] = await new Promise((resolve, reject) => {
-      form.parse(formDataStream, (err, fields, files) => {
-        if (err) reject(err);
-        resolve([fields, files]);
-      });
-    });
+    // Parse form data using FormData
+    const formData = await req.formData();
 
-    const selectedFile = files.selectedFile?.[0];  // formidable v3+ returns arrays
-    if (!selectedFile) {
+    // Retrieve the file and prompt from the form data
+    const file = formData.get("selectedFile") as File | null;
+    const prompt = formData.get("prompt") as string || "Describe this image.";
+
+    if (!file) {
       return NextResponse.json({ error: "No image uploaded." }, { status: 400 });
     }
 
-    const prompt = fields.prompt?.[0] || "Describe this image.";
+    // Read the file as a buffer
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    const fileBuffer = await new Promise<Buffer>((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      const readStream = Readable.from(selectedFile.filepath);
-      
-      readStream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-      readStream.on('end', () => resolve(Buffer.concat(chunks)));
-      readStream.on('error', reject);
-    });
-
+    // Initialize Replicate client
     const replicate = new Replicate({
-      auth: process.env.REPLICATE_API_TOKEN,
+      auth: process.env.REPLICATE_API_TOKEN || "",
     });
 
-    // Generate image with Replicate
-    const result = await replicate.run(
-      "stability-ai/stable-diffusion",
-      { 
-        input: { 
-          prompt, 
-          image: fileBuffer.toString("base64") 
-        } 
-      }
-    );
+    // Call Replicate API to generate an image
+    const result = await replicate.run("stability-ai/stable-diffusion", {
+      input: {
+        prompt,
+        image: fileBuffer.toString("base64"),
+      },
+    });
 
     if (!result || !result[0]) {
       throw new Error("Image generation failed.");
     }
 
-    return NextResponse.json({ imageURl: result[0] });
+    // Return the generated image URL
+    return NextResponse.json({ imageURL: result[0] });
   } catch (error: any) {
-    console.error('Error processing request:', error);
+    console.error("Error processing request:", error);
     return NextResponse.json(
-      { error: error.message || "An unexpected error occurred." }, 
+      { error: error.message || "An unexpected error occurred." },
       { status: 500 }
     );
   }

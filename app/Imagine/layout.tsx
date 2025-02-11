@@ -11,7 +11,6 @@ export default function HomeLayout({
 }: {
     children: React.ReactNode
 }) {
-
     const [showMenu, setShowMenu] = useState(false)
 
     const toggleMenu = () => {
@@ -23,8 +22,8 @@ export default function HomeLayout({
             <nav className='relative'>
                 <div className='flex p-10 items-center justify-between font-bold'>
                     <div className='flex items-center gap-3'>
-                        <Link href="/" className='flex items-center '>
-                            <Image src="/logo.png" alt="Logo" width={35} height={35} className='mr-[0.8px]' />
+                        <Link href="/" className='flex items-center'>
+                            <Image src="/logo.png" alt="Logo" width={35} height={35} className='mr-[0.8px]' priority />
                             <h1 className='text-xl'>entify</h1>
                         </Link>
                     </div>
@@ -37,16 +36,9 @@ export default function HomeLayout({
 
                     <div className={`flex gap-8 items-center ${styles.menubar} ${showMenu ? styles.click : ''}`}>
                         <ul className='flex gap-5'>
-                            <li>
-                                <Link href="/Home" className={`${styles.a}`}>Home</Link>
-                            </li>
-                            <li>
-                                <Link href="/Imagine" className={`${styles.a}`}>Imagine</Link>
-                            </li>
-                            <li>
-                                <Link href="/Chat" className={`${styles.a}`}>Council</Link>
-                            </li>
-                            
+                            <li><Link href="/Home" className={styles.a}>Home</Link></li>
+                            <li><Link href="/Imagine" className={styles.a}>Imagine</Link></li>
+                            <li><Link href="/Chat" className={styles.a}>Council</Link></li>
                         </ul>
                         <UserButton />
                         <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
@@ -55,7 +47,7 @@ export default function HomeLayout({
                     </div>
                 </div>
             </nav>
-            {!showMenu ? children : ''}
+            {!showMenu ? children : null}
         </div>
     )
 }

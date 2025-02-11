@@ -1,6 +1,5 @@
-"use client";
+"use client"
 
-import Head from "next/head";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import "@uploadthing/react/styles.css";
@@ -10,185 +9,159 @@ import toast, { Toaster } from "react-hot-toast";
 import { BeatLoader } from "react-spinners";
 import styles from "@/styles/swapImage.module.css";
 
-export default function Home() {
-  const [email, setEmail] = useState<string>("");
-  const [gender, setGender] = useState<string>("");
-  const [userPrompt, setUserPrompt] = useState<string>("");
-  const [click, setClick] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<string>();
-  const [imageURl, setImageURl] = useState<string>("");
-  const [emailSent, setEmailSent] = useState<boolean>(false);
-  const [receivedEmail, setReceivedEmail] = useState<boolean>(false);
+interface FormData {
+  email: string;
+  gender: string;
+  userPrompt: string;
+  selectedFile: string;
+}
 
-  const handleSubmit = async (e: any) => {
+export default function Home() {
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    gender: "",
+    userPrompt: "",
+    selectedFile: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageURl, setImageURl] = useState<string>("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [receivedEmail, setReceivedEmail] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
-      if (!selectedFile) {
-        return toast.error("Please upload a picture");
-      }
-
-      const body = {
-        email: email,
-        gender: gender,
-        userPrompt: userPrompt,
-        selectedFile: selectedFile,
-      };
-
-      // 👇🏻 post data to server's endpoint
-      const data = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      const response = await data.json();
-
-      if (response.error) {
-        toast.error(response.error);
+      if (!formData.selectedFile) {
+        toast.error("Please upload a picture");
+        setIsLoading(false);
         return;
       }
 
-      // 👇🏻 set image url
-      setImageURl(response.imageURl);
-    } catch (err) {
-      toast.error("Something went wrong");
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate image");
+      }
+
+      setImageURl(data.imageUrl);
+      
+      if (receivedEmail) {
+        await sendEmail(formData.email, data.imageUrl);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendEmail = async (email: string, imageUrl: string) => {
+    try {
+      const response = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, imageUrl }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send email");
+      }
+
+      setEmailSent(true);
+      toast.success("Email sent successfully!");
+    } catch (error) {
+      toast.error("Failed to send email");
     }
   };
 
   const handleEmailReceive = () => {
-    if (!receivedEmail) {
-      toast.success("Email receive is enabled");
-    } else {
-      toast.error("Email receive is disabled");
-    }
-
     setReceivedEmail(!receivedEmail);
+    toast.success(receivedEmail ? "Email receive disabled" : "Email receive enabled");
   };
 
-  useEffect(() => {
-    if (imageURl) {
-      setEmail("");
-      setGender("");
-      setUserPrompt("");
-      setSelectedFile("");
-    }
-
-    const sendEmail = async () => {
-
-      try {
-        const emailRes = await fetch(`/api/send`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            imageURl: imageURl,
-          }),
-        });
-
-        const emailResponse = await emailRes.json();
-
-        if (emailResponse.error) {
-          return toast.error("error in email response")
-        }
-
-        setEmailSent(true);
-
-        toast.success("Email sent successfully!");
-
-      } catch (err) {
-        toast.error("Something went wrong");
-      }
-    };
-
-    if (imageURl && receivedEmail) {
-      sendEmail();
-    }
-  }, [imageURl]);
-
   return (
-    <div>
+    <div className="min-h-screen">
       <Toaster />
       {!imageURl ? (
         <main className="flex min-h-screen w-full flex-col items-center justify-center px-4 md:p-8 relative">
           <div
-            className={`${styles.toggleButton}`}
+            className={`${styles.toggleButton} cursor-pointer`}
             onClick={handleEmailReceive}
+            role="button"
+            tabIndex={0}
           >
-            <div
-              className={`${receivedEmail ? styles.receivedEmail : ""}`}
-            ></div>
+            <div className={`${receivedEmail ? styles.receivedEmail : ""}`} />
           </div>
-          <Head>
-            <title>Imagine Yourself</title>
-          </Head>
+
           <header className="mb-8 flex w-full flex-col items-center justify-center">
             <h1 className="text-4xl font-bold">Imagine Yourself</h1>
-            <p className="opacity-60">
-              Upload a picture of yourself and generate your avatar
-            </p>
+            <p className="opacity-60">Upload a picture of yourself and generate your avatar</p>
           </header>
-          <form
-            method="POST"
-            className="flex w-full flex-col md:w-[60%]"
-            onSubmit={(e) => handleSubmit(e)}
-          >
+
+          <form onSubmit={handleSubmit} className="flex w-full flex-col md:w-[60%]">
             <label htmlFor="email">Email Address</label>
             <input
               type="email"
+              id="email"
               required
-              className="mb-3 border-[1px] px-4 py-2"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              className="mb-3 border-[1px] px-4 py-2 rounded"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
             />
 
             <label htmlFor="gender">Gender</label>
             <select
-              className="mb-4 rounded border-[1px] px-4 py-3"
-              name="gender"
               id="gender"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
+              className="mb-4 rounded border-[1px] px-4 py-3"
+              value={formData.gender}
+              onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
               required
             >
               <option value="">Select</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
+
             <UploadButton
               endpoint="imageUploader"
               onClientUploadComplete={(res) => {
-                // Do something with the response.
-                setSelectedFile(res[0].url);
-                toast.success("Image uploaded successfully!");
+                if (res?.[0]?.url) {
+                  setFormData(prev => ({ ...prev, selectedFile: res[0].url }));
+                  toast.success("Image uploaded successfully!");
+                }
               }}
               onUploadError={(error: Error) => {
-                toast.error(`ERROR! ${error.message}`);
+                toast.error(`Upload failed: ${error.message}`);
               }}
             />
-            <label htmlFor="prompt">
+
+            <label htmlFor="prompt" className="mt-4">
               Add custom prompt for your avatar
-              <span className="opacity-60">(optional)</span>
+              <span className="opacity-60"> (optional)</span>
             </label>
             <textarea
-              rows={4}
-              className="w-full border-[1px] p-3"
-              name="prompt"
               id="prompt"
-              value={userPrompt}
+              rows={4}
+              className="w-full border-[1px] p-3 rounded"
+              value={formData.userPrompt}
               placeholder="Copy image prompts from https://lexica.art"
-              onChange={(e) => setUserPrompt(e.target.value)}
+              onChange={(e) => setFormData(prev => ({ ...prev, userPrompt: e.target.value }))}
             />
+
             <button
               type="submit"
-              onClick={() => setClick(true)}
-              className="mt-5 rounded bg-blue-500 px-6 py-4 text-lg text-white hover:bg-blue-700"
+              disabled={isLoading}
+              className="mt-5 rounded bg-blue-500 px-6 py-4 text-lg text-white hover:bg-blue-700 disabled:bg-blue-300"
             >
-              {click ? (
+              {isLoading ? (
                 <BeatLoader size={8} color="white" />
               ) : (
                 <span>Generate Image</span>
@@ -203,26 +176,24 @@ export default function Home() {
               src={imageURl}
               width={200}
               height={200}
-              alt="image"
+              alt="Generated avatar"
               className="mb-10"
             />
           )}
           <h2 className="font-bold text-3xl mb-2">Thank you! 🌟</h2>
           <p className="mb-4 text-center">
             {emailSent ? (
-              <span>Your avatar has been sent to your email address</span>
+              "Your avatar has been sent to your email address"
             ) : (
-              <span>
-                {receivedEmail ? (
-                  <BeatLoader size={8} color="black" />
-                ) : (
-                  <p>your image has been generated</p>
-                )}
-              </span>
+              receivedEmail ? (
+                <BeatLoader size={8} color="black" />
+              ) : (
+                "Your image has been generated"
+              )
             )}
           </p>
           <Link
-            href="/"
+            href="/imagine"
             className="bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-600"
           >
             Generate another

@@ -24,4 +24,5 @@
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "data/leaderboard.js"],
   "exclude": ["node_modules", ".next", "out"]
-}
+} 
+
