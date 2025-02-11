@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Send email using Resend
     const data = await resend.emails.send({
-      from: 'Mentify <onboarding@resend.dev>',
+      from: 'Healix <onboarding@resend.dev>',
       to: process.env.CONTACT_EMAIL || 'maheshh130506@gmail.com',
       subject: 'Message from Mentify',
       react: ContactEmailTemplate({ name, email, message }),
