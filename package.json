@@ -19,15 +19,28 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toggle": "^1.0.3",
     "@rive-app/react-canvas": "^3.0.57",
+<<<<<<< Updated upstream
     "@uploadthing/react": "^6.0.0",
     "uploadthing": "^6.0.0",
+=======
+    "@types/formidable": "^3.4.5",
+    "@uploadthing/react": "^6.8.0",
+>>>>>>> Stashed changes
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "dotenv": "^16.4.7",
     "emailjs": "^4.0.3",
+<<<<<<< Updated upstream
     "lucide-react": "^0.295.0",
     "next": "14.0.3",
     "next-auth": "^4.22.1",
+=======
+    "formidable": "^3.5.2",
+    "framer-motion": "^11.18.0",
+    "lucide-react": "^0.295.0",
+    "next": "14.0.3",
+    "next-auth": "^4.24.11",
+>>>>>>> Stashed changes
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",
@@ -41,7 +54,11 @@
     "rive-react": "^4.6.2",
     "tailwind-merge": "^2.1.0",
     "tailwindcss-animate": "^1.0.7",
+<<<<<<< Updated upstream
     "formidable": "^2.0.0"
+=======
+    "uploadthing": "^6.13.3"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.9.3",

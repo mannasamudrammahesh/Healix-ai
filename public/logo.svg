@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background Circle -->
+  <circle cx="50" cy="50" r="45" fill="#3B82F6"/>
+  
+  <!-- Letter H with rounded edges -->
+  <path d="M35 25 
+           C35 25, 35 75, 35 75
+           M35 50
+           C35 50, 65 50, 65 50
+           M65 25
+           C65 25, 65 75, 65 75" 
+        stroke="white" 
+        stroke-width="12" 
+        stroke-linecap="round"
+        fill="none"/>
+</svg>
