@@ -1,4 +1,4 @@
-# Mentify
+# Healix
 
 #### 🌟 star this repo if you like it
 
