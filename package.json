@@ -22,7 +22,7 @@
 
     "@uploadthing/react": "^6.0.0",
     "uploadthing": "^6.0.0",
-=======
+
     "@types/formidable": "^3.4.5",
     "@uploadthing/react": "^6.8.0",
 
@@ -34,7 +34,7 @@
     "lucide-react": "^0.295.0",
     "next": "14.0.3",
     "next-auth": "^4.22.1",
-=======
+
     "formidable": "^3.5.2",
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.295.0",
@@ -56,7 +56,7 @@
     "tailwindcss-animate": "^1.0.7",
 
     "formidable": "^2.0.0"
-=======
+
     "uploadthing": "^6.13.3"
 
   },
