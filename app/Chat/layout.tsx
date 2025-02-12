@@ -35,7 +35,7 @@ export default function RootLayout({
               <div className='flex items-center gap-3'>
                 <Link href="/" className='flex items-center '>
 <Image src="/logo.svg" alt="Healix Logo" width={35} height={35} className='mr-[0.8px]'/>          
-                  <h1 className='text-xl'>entify</h1>
+                  <h1 className='text-xl'>ealix</h1>
                 </Link>
               </div>
 
