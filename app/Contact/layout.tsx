@@ -40,9 +40,7 @@ export default function HomeLayout({
                             <li>
                                 <Link href="/Home" className={`${styles.a}`}>Home</Link>
                             </li>
-                            <li>
-                                <Link href="/Imagine" className={`${styles.a}`}>Imagine</Link>
-                            </li>
+                            
                             <li>
                                 <Link href="/Chat" className={`${styles.a}`}>Council</Link>
                             </li>
