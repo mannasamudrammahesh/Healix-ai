@@ -111,7 +111,7 @@ export default function Contact() {
               height={25}
             />
             <Link href="https://www.instagram.com/mahesh.__13">
-              <p>MuniMahesh</p>
+              <p>Healix</p>
             </Link>
           </span>
         </div>
