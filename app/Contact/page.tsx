@@ -110,7 +110,8 @@ export default function Contact() {
               width={25}
               height={25}
             />
-            <Link href="https://www.instagram.com/mahesh.__13">
+                      <Link href="https://www.instagram.com/healix_ai?igsh=MXI5YWxtZ3BvcG11cw==">
+
               <p>Healix</p>
             </Link>
           </span>
@@ -134,7 +135,7 @@ export default function Contact() {
               height={35}
             />
           </Link>
-          <Link href="https://www.instagram.com/healix_ai?igsh=MXI5YWxtZ3BvcG11cw==">
+            <Link href="https://www.instagram.com/mahesh.__13">
             <Image
               src="/instagram-contact.png"
               className="hover:scale-110 transition ease-in-out"
