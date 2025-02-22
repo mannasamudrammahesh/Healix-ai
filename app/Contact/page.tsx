@@ -78,7 +78,7 @@ export default function Contact() {
         <div className="flex flex-col gap-5">
           <h1 className="text-5xl font-black text-center">Contact us</h1>
           <p className="text-lg w-80 text-center">
-            Fill up the form and I will get back to you within 24 hours
+            Fill up the form and my team will get back to you within 24 hours
           </p>
         </div>
         <div className="flex flex-col gap-5">
