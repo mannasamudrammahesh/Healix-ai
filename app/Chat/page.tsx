@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Markdown from "react-markdown";
 import { Input } from "@/components/ui/input";
-import { MessageCircleCode, Upload, Send, Copy, Download } from "lucide-react";
+import { MessageCircleCode, Upload } from "lucide-react";
+import { Send, Copy, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,39 +18,28 @@ export default function Home() {
   const [output, setOutput] = useState("The response will appear here...");
   const [loading, setLoading] = useState(false);
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (e: any) => {
     if (e.key === "Enter") {
       e.preventDefault();
       onSubmit();
     }
   };
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const onFileChange = (e: any) => {
+    const file = e.target.files[0];
     if (!file) {
       toast.error("No file selected!");
       return;
     }
-
-    // Check for supported text file types
-    const supportedTypes = ["text/plain", "text/markdown", "text/csv"];
-    if (!supportedTypes.includes(file.type)) {
-      toast.error("Only text files (.txt, .md, .csv) are supported!");
+    if (!file.type.includes("text")) {
+      toast.error("File type not supported!");
       return;
     }
-
     const reader = new FileReader();
-    reader.onload = (readerEvent) => {
-      const fileContent = readerEvent.target?.result as string;
-      if (fileContent) {
-        setPrompt(fileContent);
-        toast.success("File uploaded successfully!");
-      }
-    };
-    reader.onerror = () => {
-      toast.error("Error reading file!");
-    };
     reader.readAsText(file, "UTF-8");
+    reader.onload = (readerEvent) => {
+      setPrompt(readerEvent.target?.result || "done");
+    };
   };
 
   const copyToClipboard = () => {
@@ -61,160 +51,140 @@ export default function Home() {
     const blob = new Blob([output], { type: "text/plain" });
     const url = window.URL.createObjectURL(blob);
     const anchor = document.createElement("a");
+    // Set the href and download attributes for the anchor tag
     anchor.href = url;
-    anchor.download = "chat-response.txt";
+    anchor.download = "chat.txt";
     anchor.click();
     anchor.remove();
     window.URL.revokeObjectURL(url);
-    toast.success("File downloaded!");
   };
 
   const onSubmit = async () => {
-    if (prompt.trim() === "") {
+    if (prompt === "") {
       toast.error("Prompt cannot be empty!");
       return;
     }
 
-    setOutput("Generating response...");
+    setOutput("The response will appear here...");
+
     setLoading(true);
 
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userPrompt: prompt,
-        }),
-      });
+    const response = await fetch("api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userPrompt: prompt,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
+    const data = await response.json();
 
-      const data = await response.json();
-      setLoading(false);
+    setLoading(false)
 
-      if (data.error) {
-        toast.error(data.error);
-        setOutput("Error occurred. Please try again.");
-        return;
-      }
-
-      if (!data.text || data.text === "") {
-        toast.error("No response from the server!");
-        setOutput("No response received. Please try again.");
-        return;
-      }
-
-      setResponse(data.text);
-    } catch (error) {
-      setLoading(false);
-      toast.error("Failed to fetch response. Check your connection!");
-      setOutput("Failed to get response. Please try again.");
-      console.error("Error:", error);
+    if(data.error) {
+      toast.error(data.error);
+      return;
     }
+
+    if(data.text === "") {
+      toast.error("No response from the server!");
+      return;
+    }
+
+    setResponse(data.text);
+
   };
 
   useEffect(() => {
     if (response.length === 0) return;
 
-    setOutput(""); // Reset output before typing effect
+    setOutput("");
 
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < response.length) {
+    for (let i = 0; i < response.length; i++) {
+      setTimeout(() => {
         setOutput((prev) => prev + response[i]);
-        i++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 10);
-
-    return () => clearInterval(typingInterval); // Cleanup on unmount or response change
+      }, i * 10);
+    }
   }, [response]);
 
   return (
-    <main className="flex flex-col items-center min-h-screen gap-4 p-4 bg-gray-100">
-      <Toaster position="top-center" />
-      <div className="flex gap-2 items-center mt-8 mb-5">
-        <MessageCircleCode size="64" className="text-blue-600" />
-        <span className="text-3xl md:text-4xl font-bold text-gray-800">Council</span>
+    <main className={`flex flex-col items-center h-screen gap-4 mt-10`}>
+      <Toaster />
+      <div className="flex gap-2 items-center mb-5">
+        <MessageCircleCode size="64" />
+        <span className="text-3xl font-bold">Council</span>
       </div>
-      <div className="flex flex-col sm:flex-row gap-2 items-center w-full max-w-3xl">
-        <div className="relative w-full">
+      <div className="flex gap-2 items-center">
+        <div className="relative">
           <Input
             type="text"
-            placeholder="Enter your prompt here..."
+            placeholder="prompt"
             value={prompt}
             className={cn(
-              "w-full h-[50px] pr-12 text-sm md:text-base",
-              "focus:ring-2 focus:ring-blue-500"
+              "min-w-[320px] sm:min-w-[400px] md:min-w-[500px] h-[50px] pr-12"
             )}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={onKeyDown}
-            disabled={loading}
+            onChange={(e) => {
+              setPrompt(e.target.value);
+            }}
+            onKeyDown={(e) => onKeyDown(e)}
           />
           {loading ? (
-            <div className="absolute top-1/2 right-3 transform -translate-y-1/2">
+            <button className="absolute top-3 right-3 hover:scale-110 transition ease-in-out">
               <BeatLoader color="#000" size={8} />
-            </div>
+            </button>
           ) : (
             <button
-              onClick={onSubmit}
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 hover:scale-110 transition ease-in-out"
-              aria-label="Submit prompt"
+              onClick={() => onSubmit()}
+              className="absolute top-3 right-3 hover:scale-110 transition ease-in-out"
             >
-              <Send className="text-blue-600" />
+              <Send />
             </button>
           )}
         </div>
-        <input
+        <Input
           type="file"
-          onChange={onFileChange}
+          onChange={(e) => onFileChange(e)}
           className="hidden"
-          id="file-upload"
-          accept=".txt,.md,.csv"
         />
         <Button
           variant="outline"
-          className={cn("w-[40px] h-[40px] p-0 flex items-center justify-center")}
-          onClick={() => document.getElementById("file-upload")?.click()}
-          aria-label="Upload file"
+          className={cn("w-[40px] p-1")}
+          onClick={() => {
+            const fileInput = document.querySelector(
+              "input[type=file]"
+            ) as HTMLInputElement;
+            fileInput.click();
+          }}
         >
-          <Upload className="w-5 h-5" />
+          <Upload className={cn("w-[20px]")} />
         </Button>
       </div>
-      <div className="flex flex-col sm:flex-row gap-3 items-start w-full max-w-3xl">
+      <div className="flex gap-3 items-center">
         <Card
           className={cn(
-            "p-5 w-full min-h-[150px] max-h-[400px] overflow-y-auto",
-            "bg-white shadow-md rounded-lg"
+            "p-5 whitespace-normal min-w-[320px] sm:w-[500px] md:min-w-[600px] min-h-[150px] max-h-[400px] lg:min-w-[700px] overflow-y-scroll"
           )}
         >
-          <div className={styles.textwrapper}>
-            <Markdown className="w-full h-full text-gray-700 prose">
-              {output}
-            </Markdown>
+          <div className={`${styles.textwrapper}`}>
+            <Markdown className={cn("w-full h-full ")}>{`${output}`}</Markdown>
           </div>
         </Card>
-        <div className="flex flex-row sm:flex-col gap-3">
+        <div className="flex flex-col gap-5">
           <Button
             variant="outline"
-            className={cn("w-[40px] h-[40px] p-0 flex items-center justify-center")}
-            onClick={copyToClipboard}
-            aria-label="Copy to clipboard"
+            className={cn("w-[40px] p-1")}
+            onClick={() => copyToClipboard()}
           >
-            <Copy className="w-5 h-5" />
+            <Copy className={cn("w-[20px]")} />
           </Button>
           <Button
             variant="outline"
-            className={cn("w-[40px] h-[40px] p-0 flex items-center justify-center")}
-            onClick={downloadFile}
-            aria-label="Download response"
+            className={cn("w-[40px] p-1")}
+            onClick={() => downloadFile()}
           >
-            <Download className="w-5 h-5" />
+            <Download className={cn("w-[20px]")} />
           </Button>
         </div>
       </div>
