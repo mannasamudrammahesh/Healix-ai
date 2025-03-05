@@ -144,7 +144,7 @@ export default function Contact() {
               height={35}
             />
           </Link>
-          <Link href="https://github.com/mannasamudrammahesh">
+          <Link href="">
             <Image
               src="/github-contact.png"
               className="hover:scale-110 transition ease-in-out"
