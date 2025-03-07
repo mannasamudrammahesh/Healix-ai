@@ -24,8 +24,8 @@ export default function HomeLayout({
                 <div className='flex p-10 items-center justify-between font-bold'>
                     <div className='flex items-center gap-3'>
                         <Link href="/" className='flex items-center '>
-<Image src="/logo.svg" alt="Healix Logo" width={35} height={35} className='mr-[0.8px]'/>
-                            <h1 className='text-xl'>ealix</h1>
+                            <Image src="/logo.png" alt="Logo" width={35} height={35} className='mr-[0.8px]' />
+                            <h1 className='text-xl'>entify</h1>
                         </Link>
                     </div>
 
@@ -40,9 +40,7 @@ export default function HomeLayout({
                             <li>
                                 <Link href="/Home" className={`${styles.a}`}>Home</Link>
                             </li>
-                            <li>
-                                <Link href="/Imagine" className={`${styles.a}`}>Imagine</Link>
-                            </li>
+                            
                             <li>
                                 <Link href="/Chat" className={`${styles.a}`}>Council</Link>
                             </li>
