@@ -1,5 +1,5 @@
 "use client";
-
+import Confetti from '@/components/Confetti';
 import { useState, useEffect, useRef } from "react";
 import Markdown from "react-markdown";
 import { Input } from "@/components/ui/input";
