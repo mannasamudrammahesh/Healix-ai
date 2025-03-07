@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client";
-import Confetti from '@/components/Confetti';
+import Confetti from '@/components/Confetti'; // Keep this one
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -23,7 +23,6 @@ import {
 } from "rive-react";
 import styles from "@/styles/styles.module.css";
 import "@/styles/LoginFormComponent.css";
-import Confetti from "@/components/Confetti";
 import toast, { Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
